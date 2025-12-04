@@ -33,43 +33,70 @@ function WordCloudPage() {
 
   return (
     <div className="wordcloud-container">
+      <div className="top-bar">
+        <div className="top-bar-left">
+          <h2 className="top-bar-title">cloud-x</h2>
+        </div>
+        <div className="top-bar-right">
+          <button
+            className="top-bar-button"
+            onClick={() => navigate('/')}
+          >
+            Create New Cloud
+          </button>
+        </div>
+      </div>
+
       <div className="wordcloud-header">
         <h1>Your Word Cloud</h1>
         <p className="subtitle">Most frequent words from your text</p>
       </div>
 
-      <div className="word-count-control">
-        <label htmlFor="word-count-slider">Number of Words: </label>
-        <div className="slider-container">
-          <input
-            id="word-count-slider"
-            type="range"
-            min="1"
-            max={Math.min(allWords.length, 150)}
-            value={wordCount}
-            onChange={(e) => setWordCount(Number(e.target.value))}
-            className="slider"
-          />
-          <input
-            type="number"
-            min="1"
-            max={Math.min(allWords.length, 150)}
-            value={wordCount}
-            onChange={(e) => {
-              const inputValue = e.target.value
-              if (inputValue === '') {
-                setWordCount(0)
-              } else {
-                const value = Number(inputValue)
-                const maxWords = Math.min(allWords.length, 150)
-                if (!isNaN(value)) {
-                  const clampedValue = Math.max(1, Math.min(value, maxWords))
-                  setWordCount(clampedValue)
+      <div className="controls-section">
+        <div className="word-count-control">
+          <label htmlFor="word-count-slider">Number of Words: </label>
+          <div className="slider-container">
+            <input
+              id="word-count-slider"
+              type="range"
+              min="1"
+              max={Math.min(allWords.length, 150)}
+              value={wordCount}
+              onChange={(e) => setWordCount(Number(e.target.value))}
+              className="slider"
+            />
+            <input
+              type="number"
+              min="1"
+              max={Math.min(allWords.length, 150)}
+              value={wordCount}
+              onChange={(e) => {
+                const inputValue = e.target.value
+                if (inputValue === '') {
+                  setWordCount(0)
+                } else {
+                  const value = Number(inputValue)
+                  const maxWords = Math.min(allWords.length, 150)
+                  if (!isNaN(value)) {
+                    const clampedValue = Math.max(1, Math.min(value, maxWords))
+                    setWordCount(clampedValue)
+                  }
                 }
-              }
-            }}
-            className="word-count-input"
-          />
+              }}
+              className="word-count-input"
+            />
+          </div>
+        </div>
+
+        <div className="wordcloud-stats-inline">
+          <div className="stat-inline">
+            <span className="stat-label">Unique Words:</span>
+            <span className="stat-value">{words.length}</span>
+          </div>
+          <div className="stat-inline">
+            <span className="stat-label">Total Characters:</span>
+            <span className="stat-value">{state.text.length}</span>
+          </div>
         </div>
       </div>
 
@@ -84,26 +111,6 @@ function WordCloudPage() {
           <p>No words found to create a cloud</p>
         </div>
       )}
-
-      <div className="wordcloud-stats">
-        <div className="stat">
-          <span className="stat-label">Unique Words:</span>
-          <span className="stat-value">{words.length}</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Total Characters:</span>
-          <span className="stat-value">{state.text.length}</span>
-        </div>
-      </div>
-
-      <div className="button-group">
-        <button
-          className="create-new-button"
-          onClick={() => navigate('/')}
-        >
-          Create Another Cloud
-        </button>
-      </div>
     </div>
   )
 }
