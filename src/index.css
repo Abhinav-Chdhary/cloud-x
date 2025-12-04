@@ -9,8 +9,9 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color-scheme: dark;
+  color: #e0e0e0;
+  background-color: #0a0e27;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -26,15 +27,16 @@ html, body, #root {
 body {
   margin: 0;
   min-width: 320px;
+  background-color: #0a0e27;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #88d3ff;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #64b5ff;
 }
 
 button {
@@ -50,4 +52,5 @@ button:disabled {
 
 h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
+  color: #e0e0e0;
 }

@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useMemo } from 'react'
-import Wordcloud from 'react-wordcloud'
-import { generateWordCloud, getColorByIndex } from '../utils/wordCloudUtils'
+import { generateWordCloud } from '../utils/wordCloudUtils'
+import CustomWordCloud from '../components/CustomWordCloud'
 import './WordCloudPage.css'
 
 interface LocationState {
@@ -29,17 +29,6 @@ function WordCloudPage() {
 
   const words = useMemo(() => generateWordCloud(state.text, 80), [state.text])
 
-  const options = {
-    rotations: 2,
-    rotationAngles: [0, 90] as [number, number],
-    fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif',
-    fontSizes: [20, 80] as [number, number],
-    fontStyle: 'normal' as const,
-    fontWeight: 'bold' as const,
-    padding: 5,
-    colors: words.map((_, i) => getColorByIndex(i, words.length)),
-  }
-
   return (
     <div className="wordcloud-container">
       <div className="wordcloud-header">
@@ -50,10 +39,7 @@ function WordCloudPage() {
       {words.length > 0 ? (
         <div className="wordcloud-wrapper">
           <div className="wordcloud-canvas">
-            <Wordcloud
-              words={words}
-              options={options}
-            />
+            <CustomWordCloud words={words} />
           </div>
         </div>
       ) : (

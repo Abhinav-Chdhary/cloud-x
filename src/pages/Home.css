@@ -3,17 +3,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
   padding: 20px;
 }
 
 .home-content {
-  background: white;
+  background: #1a1f3a;
   border-radius: 16px;
   padding: 60px 40px;
   max-width: 600px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  border: 1px solid #2a3050;
 }
 
 .main-heading {
@@ -30,7 +31,7 @@
 
 .subtitle {
   text-align: center;
-  color: #666;
+  color: #a0a0a0;
   font-size: 1.1em;
   margin: 0 0 40px 0;
   line-height: 1.5;
@@ -44,30 +45,33 @@
   width: 100%;
   min-height: 200px;
   padding: 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #2a3050;
   border-radius: 12px;
   font-size: 1em;
   font-family: inherit;
   resize: vertical;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  background: #252d45;
+  color: #e0e0e0;
 }
 
 .text-input:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  background: #2a3050;
 }
 
 .text-input::placeholder {
-  color: #999;
+  color: #606070;
 }
 
 .create-button {
   width: 100%;
   padding: 14px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: #e0e0e0;
   border: none;
   border-radius: 12px;
   font-size: 1.1em;
@@ -93,7 +97,7 @@
 
 .char-count {
   text-align: center;
-  color: #999;
+  color: #707080;
   font-size: 0.9em;
   margin-top: 12px;
 }

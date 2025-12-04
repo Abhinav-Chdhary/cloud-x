@@ -1,0 +1,40 @@
+.custom-wordcloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  min-height: 300px;
+  width: 100%;
+}
+
+.word {
+  display: inline-block;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.word:hover {
+  opacity: 1 !important;
+  filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  transform: scale(1.15);
+}
+
+@media (max-width: 600px) {
+  .custom-wordcloud {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .word {
+    padding: 2px 4px;
+  }
+}
