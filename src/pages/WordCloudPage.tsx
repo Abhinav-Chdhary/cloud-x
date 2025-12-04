@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generateWordCloud } from '../utils/wordCloudUtils'
 import CustomWordCloud from '../components/CustomWordCloud'
 import './WordCloudPage.css'
@@ -12,6 +12,7 @@ function WordCloudPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const state = location.state as LocationState
+  const [wordCount, setWordCount] = useState(50)
 
   if (!state?.text) {
     return (
@@ -27,13 +28,49 @@ function WordCloudPage() {
     )
   }
 
-  const words = useMemo(() => generateWordCloud(state.text, 80), [state.text])
+  const allWords = useMemo(() => generateWordCloud(state.text, 200), [state.text])
+  const words = useMemo(() => allWords.slice(0, wordCount), [allWords, wordCount])
 
   return (
     <div className="wordcloud-container">
       <div className="wordcloud-header">
         <h1>Your Word Cloud</h1>
         <p className="subtitle">Most frequent words from your text</p>
+      </div>
+
+      <div className="word-count-control">
+        <label htmlFor="word-count-slider">Number of Words: </label>
+        <div className="slider-container">
+          <input
+            id="word-count-slider"
+            type="range"
+            min="1"
+            max={Math.min(allWords.length, 150)}
+            value={wordCount}
+            onChange={(e) => setWordCount(Number(e.target.value))}
+            className="slider"
+          />
+          <input
+            type="number"
+            min="1"
+            max={Math.min(allWords.length, 150)}
+            value={wordCount}
+            onChange={(e) => {
+              const inputValue = e.target.value
+              if (inputValue === '') {
+                setWordCount(0)
+              } else {
+                const value = Number(inputValue)
+                const maxWords = Math.min(allWords.length, 150)
+                if (!isNaN(value)) {
+                  const clampedValue = Math.max(1, Math.min(value, maxWords))
+                  setWordCount(clampedValue)
+                }
+              }
+            }}
+            className="word-count-input"
+          />
+        </div>
       </div>
 
       {words.length > 0 ? (

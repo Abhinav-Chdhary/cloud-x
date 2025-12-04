@@ -12,18 +12,19 @@ function CustomWordCloud({ words }: CustomWordCloudProps) {
   const minFreq = Math.min(...words.map(w => w.value))
 
   const getSize = (value: number) => {
-    const minSize = 14
-    const maxSize = 72
+    const minSize = 16
+    const maxSize = 80
     const normalized = (value - minFreq) / (maxFreq - minFreq)
     return minSize + normalized * (maxSize - minSize)
   }
 
   const getColor = (index: number) => {
     const colors = [
-      '#667eea', '#764ba2', '#f093fb', '#4facfe',
-      '#00f2fe', '#43e97b', '#fa709a', '#fee140',
-      '#30cfd0', '#330867', '#ff6a00', '#ee0979',
-      '#ffd89b', '#19547b', '#fbc92c', '#65fd58'
+      '#c2a876', '#9b8b5c', '#d4a574', '#b19956',
+      '#e8b4a8', '#d97f85', '#c97c9e', '#9b7ec4',
+      '#8a9bc9', '#6bb3d4', '#5fc9d9', '#4eb8a8',
+      '#8ec4a0', '#a8d4a8', '#c4d4a0', '#d4c4a0',
+      '#d9a890', '#c994a0', '#a894c4', '#9894d4'
     ]
     return colors[index % colors.length]
   }
@@ -39,10 +40,9 @@ function CustomWordCloud({ words }: CustomWordCloudProps) {
           style={{
             fontSize: `${getSize(word.value)}px`,
             color: getColor(index),
-            opacity: 0.8 + (word.value / maxFreq) * 0.2,
-            transform: `rotate(${Math.random() > 0.5 ? 90 : 0}deg)`,
+            fontWeight: 600,
+            lineHeight: 1.2,
           }}
-          title={`${word.text}: ${word.value} occurrences`}
         >
           {word.text}
         </span>
