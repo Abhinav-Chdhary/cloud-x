@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState, useRef } from "react";
 import { generateWordCloud } from "../utils/wordCloudUtils";
+// Components
 import CustomWordCloud, { type WordCloudHandle } from "../components/CustomWordCloud";
+// Styles
 import "./WordCloudPage.css";
 
 interface LocationState {
