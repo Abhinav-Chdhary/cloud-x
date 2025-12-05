@@ -129,7 +129,7 @@ const CustomWordCloud = forwardRef<WordCloudHandle, CustomWordCloudProps>(
       const centerY = height / 2
       const padding = 3
 
-      sortedWords.forEach((word, index) => {
+      sortedWords.forEach((word) => {
         const fontSize = getSize(word.value, minFreq, maxFreq)
         ctx.font = `600 ${fontSize}px system-ui, -apple-system, sans-serif`
         const metrics = ctx.measureText(word.text)
