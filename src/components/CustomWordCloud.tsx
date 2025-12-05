@@ -52,28 +52,30 @@ const CustomWordCloud = forwardRef<WordCloudHandle, CustomWordCloudProps>(
       downloadSVG: () => {
         if (words.length === 0) return
 
+        const canvas = canvasRef.current
+        const container = containerRef.current
+        if (!canvas || !container) return
+
+        const rect = container.getBoundingClientRect()
+        const width = rect.width
+        const height = rect.height
+
         const maxFreq = Math.max(...words.map(w => w.value))
         const minFreq = Math.min(...words.map(w => w.value))
-        const shuffledWords = [...words].sort(() => Math.random() - 0.5)
-
-        const canvas = canvasRef.current
-        if (!canvas) return
-
-        const width = canvas.width
-        const height = canvas.height
+        const sortedWords = [...words].sort((a, b) => b.value - a.value)
 
         let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">\n`
         svgContent += `<rect width="100%" height="100%" fill="#1a1a1a"/>\n`
 
-        const ctx = canvas.getContext('2d')
+        const tempCanvas = document.createElement('canvas')
+        const ctx = tempCanvas.getContext('2d')
         if (!ctx) return
 
-        const positions = calculateWordPositions(shuffledWords, width, height, minFreq, maxFreq, ctx)
+        const positions = calculateWordPositions(sortedWords, width, height, minFreq, maxFreq, ctx)
 
         positions.forEach((pos, index) => {
-          const fontSize = getSize(pos.word.value, minFreq, maxFreq)
           const color = getColor(index)
-          svgContent += `<text x="${pos.x}" y="${pos.y}" font-size="${fontSize}" fill="${color}" font-weight="600" font-family="system-ui, -apple-system, sans-serif">${pos.word.text}</text>\n`
+          svgContent += `<text x="${pos.x}" y="${pos.y}" font-size="${pos.fontSize}" fill="${color}" font-weight="600" font-family="system-ui, -apple-system, sans-serif">${pos.word.text}</text>\n`
         })
 
         svgContent += '</svg>'
@@ -94,10 +96,27 @@ const CustomWordCloud = forwardRef<WordCloudHandle, CustomWordCloudProps>(
       y: number
       width: number
       height: number
+      fontSize: number
+    }
+
+    interface Rectangle {
+      x: number
+      y: number
+      width: number
+      height: number
+    }
+
+    const rectanglesOverlap = (rect1: Rectangle, rect2: Rectangle): boolean => {
+      return !(
+        rect1.x + rect1.width < rect2.x ||
+        rect2.x + rect2.width < rect1.x ||
+        rect1.y + rect1.height < rect2.y ||
+        rect2.y + rect2.height < rect1.y
+      )
     }
 
     const calculateWordPositions = (
-      shuffledWords: WordData[],
+      sortedWords: WordData[],
       width: number,
       height: number,
       minFreq: number,
@@ -105,38 +124,87 @@ const CustomWordCloud = forwardRef<WordCloudHandle, CustomWordCloudProps>(
       ctx: CanvasRenderingContext2D
     ): WordPosition[] => {
       const positions: WordPosition[] = []
-      const padding = 10
-      let currentX = padding
-      let currentY = padding
-      let maxHeightInRow = 0
+      const margin = 5
+      const centerX = width / 2
+      const centerY = height / 2
+      const padding = 3
 
-      shuffledWords.forEach((word) => {
+      sortedWords.forEach((word, index) => {
         const fontSize = getSize(word.value, minFreq, maxFreq)
         ctx.font = `600 ${fontSize}px system-ui, -apple-system, sans-serif`
         const metrics = ctx.measureText(word.text)
         const wordWidth = metrics.width
         const wordHeight = fontSize * 1.2
 
-        if (currentX + wordWidth + padding > width) {
-          currentX = padding
-          currentY += maxHeightInRow + padding
-          maxHeightInRow = 0
+        let placed = false
+        let radius = 0
+        const maxRadius = Math.sqrt(width * width + height * height) / 2
+        const radiusStep = 2
+
+        // Try to place the word using spiral algorithm
+        while (!placed && radius < maxRadius) {
+          const numAngles = radius === 0 ? 1 : Math.max(12, Math.floor((2 * Math.PI * radius) / (fontSize / 4)))
+          const currentAngleStep = radius === 0 ? 0 : (2 * Math.PI) / numAngles
+
+          for (let i = 0; i < (radius === 0 ? 1 : numAngles); i++) {
+            const angle = i * currentAngleStep
+            const x = centerX + radius * Math.cos(angle) - wordWidth / 2
+            const y = centerY + radius * Math.sin(angle) + fontSize / 3
+
+            // Check if word fits in canvas with margin
+            if (
+              x < margin ||
+              y - wordHeight < margin ||
+              x + wordWidth > width - margin ||
+              y > height - margin
+            ) {
+              continue
+            }
+
+            const candidate: Rectangle = {
+              x: x - padding,
+              y: y - wordHeight - padding,
+              width: wordWidth + padding * 2,
+              height: wordHeight + padding * 2
+            }
+
+            // Check for collisions with existing words
+            let hasCollision = false
+            for (const pos of positions) {
+              const existingRect: Rectangle = {
+                x: pos.x - padding,
+                y: pos.y - pos.height - padding,
+                width: pos.width + padding * 2,
+                height: pos.height + padding * 2
+              }
+
+              if (rectanglesOverlap(candidate, existingRect)) {
+                hasCollision = true
+                break
+              }
+            }
+
+            if (!hasCollision) {
+              positions.push({
+                word,
+                x,
+                y,
+                width: wordWidth,
+                height: wordHeight,
+                fontSize
+              })
+              placed = true
+              break
+            }
+          }
+
+          radius += radiusStep
         }
 
-        if (currentY + wordHeight > height) {
-          return
+        // If word couldn't be placed with spiral, skip it
+        if (!placed) {
+          console.warn(`Could not place word: ${word.text} (${positions.length}/${sortedWords.length} placed so far)`)
         }
-
-        positions.push({
-          word,
-          x: currentX,
-          y: currentY + fontSize,
-          width: wordWidth,
-          height: wordHeight
-        })
-
-        currentX += wordWidth + padding
-        maxHeightInRow = Math.max(maxHeightInRow, wordHeight)
       })
 
       return positions
@@ -147,31 +215,47 @@ const CustomWordCloud = forwardRef<WordCloudHandle, CustomWordCloudProps>(
       const container = containerRef.current
       if (!canvas || !container || words.length === 0) return
 
-      const dpr = window.devicePixelRatio || 1
-      const rect = container.getBoundingClientRect()
-      canvas.width = rect.width * dpr
-      canvas.height = rect.height * dpr
-      canvas.style.width = `${rect.width}px`
-      canvas.style.height = `${rect.height}px`
+      const resizeCanvas = () => {
+        const dpr = window.devicePixelRatio || 1
+        const rect = container.getBoundingClientRect()
 
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
+        // Set actual size in pixels
+        canvas.width = rect.width * dpr
+        canvas.height = rect.height * dpr
 
-      ctx.scale(dpr, dpr)
-      ctx.clearRect(0, 0, rect.width, rect.height)
+        // Set display size
+        canvas.style.width = `${rect.width}px`
+        canvas.style.height = `${rect.height}px`
 
-      const maxFreq = Math.max(...words.map(w => w.value))
-      const minFreq = Math.min(...words.map(w => w.value))
-      const shuffledWords = [...words].sort(() => Math.random() - 0.5)
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
 
-      const positions = calculateWordPositions(shuffledWords, rect.width, rect.height, minFreq, maxFreq, ctx)
+        // Scale for high DPI displays
+        ctx.scale(dpr, dpr)
+        ctx.clearRect(0, 0, rect.width, rect.height)
 
-      positions.forEach((pos, index) => {
-        const fontSize = getSize(pos.word.value, minFreq, maxFreq)
-        ctx.font = `600 ${fontSize}px system-ui, -apple-system, sans-serif`
-        ctx.fillStyle = getColor(index)
-        ctx.fillText(pos.word.text, pos.x, pos.y)
-      })
+        const maxFreq = Math.max(...words.map(w => w.value))
+        const minFreq = Math.min(...words.map(w => w.value))
+        const sortedWords = [...words].sort((a, b) => b.value - a.value)
+
+        const positions = calculateWordPositions(sortedWords, rect.width, rect.height, minFreq, maxFreq, ctx)
+
+        positions.forEach((pos, index) => {
+          ctx.font = `600 ${pos.fontSize}px system-ui, -apple-system, sans-serif`
+          ctx.fillStyle = getColor(index)
+          ctx.fillText(pos.word.text, pos.x, pos.y)
+        })
+      }
+
+      // Use setTimeout to ensure layout is complete before measuring
+      const timeoutId = setTimeout(resizeCanvas, 0)
+
+      // Add resize listener
+      window.addEventListener('resize', resizeCanvas)
+      return () => {
+        clearTimeout(timeoutId)
+        window.removeEventListener('resize', resizeCanvas)
+      }
     }, [words])
 
     if (words.length === 0) return null
