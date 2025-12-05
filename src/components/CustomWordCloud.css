@@ -1,25 +1,19 @@
 .custom-wordcloud {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
   justify-content: center;
   align-items: center;
-  padding: 30px;
-  min-height: 400px;
   width: 100%;
+  min-height: 500px;
+  height: 100%;
 }
 
-.word {
-  display: inline-block;
-  user-select: none;
-  white-space: nowrap;
-  font-weight: 600;
+.custom-wordcloud canvas {
+  max-width: 100%;
+  max-height: 100%;
 }
 
 @media (max-width: 600px) {
   .custom-wordcloud {
-    gap: 12px;
-    padding: 20px;
-    min-height: 300px;
+    min-height: 400px;
   }
 }

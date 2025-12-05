@@ -1,18 +1,19 @@
-import { useLocation, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
-import { generateWordCloud } from '../utils/wordCloudUtils'
-import CustomWordCloud from '../components/CustomWordCloud'
-import './WordCloudPage.css'
+import { useLocation, useNavigate } from "react-router-dom";
+import { useMemo, useState, useRef } from "react";
+import { generateWordCloud } from "../utils/wordCloudUtils";
+import CustomWordCloud, { type WordCloudHandle } from "../components/CustomWordCloud";
+import "./WordCloudPage.css";
 
 interface LocationState {
-  text: string
+  text: string;
 }
 
 function WordCloudPage() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const state = location.state as LocationState
-  const [wordCount, setWordCount] = useState(50)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as LocationState;
+  const [wordCount, setWordCount] = useState(50);
+  const wordCloudRef = useRef<WordCloudHandle>(null);
 
   if (!state?.text) {
     return (
@@ -20,28 +21,33 @@ function WordCloudPage() {
         <div className="error-state">
           <h2>No text provided</h2>
           <p>Please go back and enter some text to create a word cloud</p>
-          <button onClick={() => navigate('/')} className="back-button">
+          <button onClick={() => navigate("/")} className="back-button">
             Back to Home
           </button>
         </div>
       </div>
-    )
+    );
   }
 
-  const allWords = useMemo(() => generateWordCloud(state.text, 200), [state.text])
-  const words = useMemo(() => allWords.slice(0, wordCount), [allWords, wordCount])
+  const allWords = useMemo(
+    () => generateWordCloud(state.text, 200),
+    [state.text]
+  );
+  const words = useMemo(
+    () => allWords.slice(0, wordCount),
+    [allWords, wordCount]
+  );
 
   return (
     <div className="wordcloud-container">
       <div className="top-bar">
         <div className="top-bar-left">
-          <h2 className="top-bar-title">cloud-x</h2>
+          <h2 className="top-bar-title" onClick={() => navigate("/")}>
+            cloud-x
+          </h2>
         </div>
         <div className="top-bar-right">
-          <button
-            className="top-bar-button"
-            onClick={() => navigate('/')}
-          >
+          <button className="top-bar-button" onClick={() => navigate("/")}>
             Create New Cloud
           </button>
         </div>
@@ -71,15 +77,15 @@ function WordCloudPage() {
               max={Math.min(allWords.length, 150)}
               value={wordCount}
               onChange={(e) => {
-                const inputValue = e.target.value
-                if (inputValue === '') {
-                  setWordCount(0)
+                const inputValue = e.target.value;
+                if (inputValue === "") {
+                  setWordCount(0);
                 } else {
-                  const value = Number(inputValue)
-                  const maxWords = Math.min(allWords.length, 150)
+                  const value = Number(inputValue);
+                  const maxWords = Math.min(allWords.length, 150);
                   if (!isNaN(value)) {
-                    const clampedValue = Math.max(1, Math.min(value, maxWords))
-                    setWordCount(clampedValue)
+                    const clampedValue = Math.max(1, Math.min(value, maxWords));
+                    setWordCount(clampedValue);
                   }
                 }
               }}
@@ -98,12 +104,29 @@ function WordCloudPage() {
             <span className="stat-value">{state.text.length}</span>
           </div>
         </div>
+
+        <div className="download-buttons">
+          <button
+            className="download-button"
+            onClick={() => wordCloudRef.current?.downloadPNG()}
+            title="Download as PNG"
+          >
+            Download PNG
+          </button>
+          <button
+            className="download-button"
+            onClick={() => wordCloudRef.current?.downloadSVG()}
+            title="Download as SVG"
+          >
+            Download SVG
+          </button>
+        </div>
       </div>
 
       {words.length > 0 ? (
         <div className="wordcloud-wrapper">
           <div className="wordcloud-canvas">
-            <CustomWordCloud words={words} />
+            <CustomWordCloud ref={wordCloudRef} words={words} />
           </div>
         </div>
       ) : (
@@ -112,7 +135,7 @@ function WordCloudPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default WordCloudPage
+export default WordCloudPage;
