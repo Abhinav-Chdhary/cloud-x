@@ -7,7 +7,7 @@ import WordCloudPage from './pages/WordCloudPage'
 
 function App() {
   return (
-    <Router>
+    <Router basename="/cloud-x">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/wordcloud" element={<WordCloudPage />} />
